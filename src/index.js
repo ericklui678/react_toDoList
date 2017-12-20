@@ -1,29 +1,33 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 import TaskField from './components/taskfield';
+import TaskList from './components/task_list';
 
 class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
       items: [
-        { id: 1, text: 'Learn React', completed: true },
-        { id: 2, text: 'Build a todo app', completed: false },
-        { id: 3, text: 'Profit', completed: false },
+        { id: 0, text: 'Learn React', completed: true },
+        { id: 1, text: 'Build a todo app', completed: false },
+        { id: 2, text: 'Profit', completed: false },
       ],
-      filter: 'all',
+      filter: 'uncompleted',
       newTodoText: '',
     }
     this.onChange = this.onChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
+    this.updateCompleteStatus = this.updateCompleteStatus.bind(this);
   }
 
   handleSubmit(event) {
     event.preventDefault();
+    // if empty string input, don't do anything
+    if (!this.state.newTodoText) return;
     // create copy of items array, push new item, then setState
     let newItems = this.state.items.slice();
     newItems.push({
-      id: newItems.length + 1,
+      id: newItems.length,
       text: this.state.newTodoText,
       completed: false,
     })
@@ -31,7 +35,15 @@ class App extends Component {
       items: newItems,
       newTodoText: '',
     });
+  }
 
+  updateCompleteStatus(i) {
+    let newItems = this.state.items.slice();
+
+    newItems[i].completed = !newItems[i].completed;
+    this.setState({items: newItems});
+    // console.log(this.state.items[i]);
+    // this.setState()
   }
 
   onChange(event) {
@@ -39,13 +51,23 @@ class App extends Component {
   }
 
   render() {
-    console.log(this.state);
+    console.log(this.state.items);
     return (
-      <TaskField
-        taskText={this.state.newTodoText}
-        taskChange={this.onChange}
-        text={this.state.newTodoText}
-        onSubmit={this.handleSubmit}/>
+      <div>
+        <TaskField
+          taskText={this.state.newTodoText}
+          taskChange={this.onChange}
+          text={this.state.newTodoText}
+          onSubmit={this.handleSubmit}/>
+        <h1>{this.state.filter} tasks</h1>
+        <p onClick={() => this.setState({filter: 'all'})}>All</p>
+        <p onClick={() => this.setState({filter: 'completed'})}>Completed</p>
+        <p onClick={() => this.setState({filter: 'uncompleted'})}>Uncompleted</p>
+        <TaskList
+          items={this.state.items}
+          filter={this.state.filter}
+          onClick={this.updateCompleteStatus}/>
+      </div>
     );
   }
 }
